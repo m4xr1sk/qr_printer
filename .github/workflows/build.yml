@@ -1,0 +1,70 @@
+name: Build EXE with PyInstaller
+
+on:
+  push:
+    branches:
+      - main  # Sostituisci con il nome del tuo branch principale
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: Copy Arial font
+      run: |
+        if (-Not (Test-Path -Path Fonts)) { New-Item -ItemType Directory -Path Fonts }
+        Copy-Item -Path "C:\Windows\Fonts\arial.ttf" -Destination "Fonts\"
+
+    - name: Build EXE
+      run: |
+        pyinstaller --onefile --add-data "Fonts\arial.ttf;Fonts" main.py
+
+    - name: Rename EXE
+      run: |
+        Rename-Item -Path "dist/main.exe" -NewName "qr_printer.exe"
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: qr_printer
+        path: dist/qr_printer.exe
+
+    - name: Get current date
+      id: get_date
+      shell: bash
+      run: echo "RELEASE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        release_name: Release ${{ env.RELEASE_TAG }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/qr_printer.exe
+        asset_name: qr_printer.exe
+        asset_content_type: application/octet-stream

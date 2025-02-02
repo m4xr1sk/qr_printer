@@ -1,0 +1,6 @@
+opencv-python
+pyzbar
+pillow
+python-barcode
+qrcode
+pywin32
