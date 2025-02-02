@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import sys
@@ -15,21 +16,29 @@ def get_font_path():
         base_path = os.path.abspath(os.path.dirname(__file__))
     return os.path.join(base_path, "Fonts", "arial.ttf")
 
+def load_coordinates(file_path):
+    try:
+        with open(file_path, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"File {file_path} non trovato. Utilizzo delle coordinate predefinite.")
+        return {
+            "IMEI_label": (20, 45),
+            "IMEI_barcode": (120, 20),
+            "IMEI_text": (150, 80),
+            "Address_label": (20, 135),
+            "Address_barcode": (120, 120),
+            "Address_text": (150, 180),
+            "ECU_label": (20, 280),
+            "ECU_text": (200, 280),
+            "QRCode": (590, 130)
+        }
+
 
 def generate_image_with_barcodes(image_name, qr_data):
-    # Coordinate Table
-    coordinates = {
-        #                      x    y
-        "IMEI_label":       ( 20,  45),
-        "IMEI_barcode":     (120,  20),
-        "IMEI_text":        (150,  80),
-        "Address_label":    ( 20, 135),
-        "Address_barcode":  (120, 120),
-        "Address_text":     (150, 180),
-        "ECU_label":        ( 20, 280),
-        "ECU_text":         (200, 280),
-        "QRCode":           (590, 130)
-    }
+    # Coordinate Table    
+    coordinates = load_coordinates("coords.json")
+
     sizes = {
         "Image": (800, 350),
         "QRCode": (200, 200),

@@ -1,7 +1,7 @@
 import tkinter as tk
 import json
 from PIL import Image, ImageTk, ImageFont
-from utils import generate_image_with_barcodes, get_font_path
+from utils import generate_image_with_barcodes, get_font_path, load_coordinates
 import barcode
 from barcode.writer import ImageWriter
 import qrcode
@@ -12,14 +12,22 @@ data = {
     "ecu_code": "SU20'0301"
 }
 
-coordinates = {
-    "IMEI_barcode": (120, 20),
-    "Address_barcode": (120, 120),
-    "IMEI": (20, 45),
-    "BLE MAC\nADDRESS": (20, 135),
-    "ECU CODE": (20, 280),
-    "SU20'0301": (200, 280),
-    "QRCode": (590, 130)
+# coordinates = {
+#     "IMEI_barcode": (120, 20),
+#     "Address_barcode": (120, 120),
+#     "IMEI_label": (20, 45), # IMEI
+#     "Address_label": (20, 135), # BLE MAC\nADDRESS
+#     "ECU_label": (20, 280), # ECU CODE
+#     "ECU_text": (200, 280), # SU20'0301
+#     "QRCode": (590, 130)
+# }
+coordinates = load_coordinates("coords.json")
+
+labels = {
+    "IMEI_label": "IMEI",
+    "Address_label": "BLE MAC\nADDRESS",
+    "ECU_label": "ECU CODE",
+    "ECU_text": "SU20'0301"
 }
 
 def generate_image_with_barcodes(data):
@@ -79,6 +87,11 @@ root = tk.Tk()
 root.title("Editor posizioni")
 root.geometry("800x500")
 
+# Crea un Canvas e disegna un rettangolo
+canvas = tk.Canvas(root, width=800, height=350, bg="white")
+canvas.pack()
+canvas.create_rectangle(2, 2, 800-4, 350-4, outline="black", width=2)
+
 address_barcode_image, imei_barcode_image = generate_image_with_barcodes(data)
 qr_image = generate_qr_code(data)
 
@@ -107,7 +120,8 @@ for key, (x, y) in coordinates.items():
         lbl = tk.Label(root, image=qr_photo)
         lbl.image = qr_photo  # Keep a reference to avoid garbage collection
     else:
-        lbl = tk.Label(root, text=key, bg="lightblue", font=(font_family, font_size), anchor="w", justify="left")
+        text = labels.get(key, key)
+        lbl = tk.Label(root, text=text, bg="lightblue", font=(font_family, font_size), anchor="w", justify="left")
     lbl.name = key
     lbl.place(x=x, y=y)
     lbl.bind("<Button-1>", on_drag_start)

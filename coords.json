@@ -1,22 +1,30 @@
 {
-  "IMEI_label": [
-    25,
-    73
-  ],
   "IMEI_barcode": [
-    136,
-    51
-  ],
-  "Address_label": [
-    22,
-    154
+    120,
+    20
   ],
   "Address_barcode": [
-    203,
-    145
+    120,
+    120
+  ],
+  "IMEI_label": [
+    20,
+    45
+  ],
+  "Address_label": [
+    20,
+    135
   ],
   "ECU_label": [
     20,
     280
+  ],
+  "ECU_text": [
+    200,
+    280
+  ],
+  "QRCode": [
+    590,
+    130
   ]
 }
