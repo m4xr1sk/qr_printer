@@ -44,6 +44,17 @@ def generate_image_with_barcodes(data):
     imei_barcode_image = imei_barcode.render(writer_options=writer_options)    
     return address_barcode_image, imei_barcode_image
 
+def generate_qr_code(data):
+    qr = qrcode.QRCode(
+        version=1,
+        box_size=10,
+        border=2
+    )
+    qr.add_data(f"{data['imei']} {data['address']} {data['ecu_code']}")
+    qr.make(fit=True)
+    qr_image = qr.make_image(fill='black', back_color='white').resize((200, 200))
+    return qr_image
+
 def save_positions():
     with open("coords.json", "w") as f:
         json.dump(coordinates, f, indent=2)
@@ -69,6 +80,7 @@ root.title("Editor posizioni")
 root.geometry("800x500")
 
 address_barcode_image, imei_barcode_image = generate_image_with_barcodes(data)
+qr_image = generate_qr_code(data)
 
 # Carica il font per i testi
 font_path = get_font_path()
@@ -90,9 +102,13 @@ for key, (x, y) in coordinates.items():
         barcode_photo = ImageTk.PhotoImage(imei_barcode_image)
         lbl = tk.Label(root, image=barcode_photo)
         lbl.image = barcode_photo  # Keep a reference to avoid garbage collection
+    elif key == "QRCode":
+        qr_photo = ImageTk.PhotoImage(qr_image)
+        lbl = tk.Label(root, image=qr_photo)
+        lbl.image = qr_photo  # Keep a reference to avoid garbage collection
     else:
-        #lbl = tk.Label(root, text=key, bg="lightblue", font=(font_family, font_size), anchor="w")   
         lbl = tk.Label(root, text=key, bg="lightblue", font=(font_family, font_size), anchor="w", justify="left")
+    lbl.name = key
     lbl.place(x=x, y=y)
     lbl.bind("<Button-1>", on_drag_start)
     lbl.bind("<B1-Motion>", on_drag_move)
