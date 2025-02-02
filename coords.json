@@ -1,0 +1,22 @@
+{
+  "IMEI_label": [
+    25,
+    73
+  ],
+  "IMEI_barcode": [
+    136,
+    51
+  ],
+  "Address_label": [
+    22,
+    154
+  ],
+  "Address_barcode": [
+    203,
+    145
+  ],
+  "ECU_label": [
+    20,
+    280
+  ]
+}
